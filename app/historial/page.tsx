@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 
 type Presupuesto = {
@@ -20,14 +21,14 @@ export default function HistorialPage() {
   async function buscar() {
     setCargando(true);
 
-    // 1) Traemos también el id
+    // Consulta base
     const baseQuery = supabase
       .from("presupuestos")
       .select("id, numero, fecha, propietario, placa, total")
       .order("fecha", { ascending: false })
       .limit(50);
 
-    // 2) Filtramos por la columna correcta: placa
+    // Si hay texto en placa, filtramos; si no, traemos últimos 50
     const finalQuery =
       placa.trim() === ""
         ? baseQuery
@@ -36,7 +37,7 @@ export default function HistorialPage() {
     const { data, error } = await finalQuery;
 
     if (error) {
-      console.error(error);
+      console.error("Error cargando historial:", error);
     }
 
     if (!error && data) {
@@ -46,6 +47,7 @@ export default function HistorialPage() {
   }
 
   useEffect(() => {
+    // Al entrar a la página, cargamos últimos presupuestos
     buscar();
   }, []);
 
@@ -53,6 +55,7 @@ export default function HistorialPage() {
     <div className="max-w-4xl mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Historial de presupuestos</h1>
 
+      {/* Buscador por placa */}
       <div className="flex gap-2 mb-4">
         <input
           className="border rounded px-3 py-2 flex-1"
@@ -68,6 +71,7 @@ export default function HistorialPage() {
         </button>
       </div>
 
+      {/* Tabla de resultados */}
       <table className="w-full text-sm border-collapse">
         <thead>
           <tr className="bg-gray-100">
@@ -76,6 +80,7 @@ export default function HistorialPage() {
             <th className="border px-2 py-1">Propietario</th>
             <th className="border px-2 py-1">Placa</th>
             <th className="border px-2 py-1">Total (COP)</th>
+            <th className="border px-2 py-1">Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -93,13 +98,21 @@ export default function HistorialPage() {
                   currency: "COP",
                 })}
               </td>
+              <td className="border px-2 py-1 text-center">
+                <Link
+                  href={`/presupuestos/${p.id}`}
+                  className="text-blue-600 text-xs underline"
+                >
+                  Ver / PDF
+                </Link>
+              </td>
             </tr>
           ))}
 
           {resultados.length === 0 && !cargando && (
             <tr>
               <td
-                colSpan={5}
+                colSpan={6}
                 className="border px-2 py-4 text-center text-gray-500"
               >
                 No hay presupuestos para mostrar.
