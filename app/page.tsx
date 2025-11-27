@@ -1,56 +1,70 @@
+"use client";
+
 import Link from "next/link";
-import Image from "next/image";
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="w-full max-w-xl bg-white rounded-xl shadow p-8">
-        <header className="text-center mb-8 flex flex-col items-center gap-2">
-          <Image
+    <main className="min-h-screen bg-gray-100 flex items-center justify-center px-3 py-6">
+      <div className="w-full max-w-xl bg-white rounded-2xl shadow-md border border-gray-100 p-5 md:p-8">
+        {/* Logo + título */}
+        <section className="flex flex-col items-center gap-3 mb-6">
+          <img
             src="/logo-taller.svg"
-            alt="Taller de Vehículos"
-            width={380}
-            height={150}
-            priority
+            alt="Motoren Haus"
+            className="h-30 md:h-30 w-auto"
           />
-          <h1 className="text-3xl font-bold text-blue-700">
-            Presupuestos del taller
-          </h1>
-          <p className="text-sm text-gray-500">
-            Crear y consultar presupuestos de servicios y repuestos
-          </p>
-        </header>
+          <div className="text-center">
+            <h1 className="text-2xl md:text-3xl font-bold text-brand">
+              Presupuestos del taller
+            </h1>
+            <p className="mt-1 text-xs md:text-sm text-gray-500">
+              Crear y consultar presupuestos de servicios y repuestos
+            </p>
+          </div>
+        </section>
 
-        <section className="grid gap-4 md:grid-cols-2">
-          {/* Nuevo Presupuesto */}
+        {/* Botones principales */}
+        <section className="flex flex-col gap-3">
+          {/* Nuevo presupuesto */}
           <Link
             href="/nuevo"
-            className="flex flex-col items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-50 hover:bg-blue-100 transition p-6 text-center"
+            className="group rounded-2xl border border-[#dbe5ff] bg-[#f5f8ff] px-4 py-4 md:py-5 flex items-center gap-3 md:gap-4 hover:shadow-md transition-shadow"
           >
-            <span className="text-4xl">📄</span>
-            <span className="font-semibold text-blue-800">
-              Nuevo presupuesto
-            </span>
-            <span className="text-xs text-blue-700">
-              Crear registro para un vehículo
-            </span>
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white border border-[#dbe5ff]">
+              <span className="text-xl">📄</span>
+            </div>
+            <div className="flex-1">
+              <h2 className="text-sm md:text-base font-semibold text-brand">
+                Nuevo presupuesto
+              </h2>
+              <p className="text-[11px] md:text-xs text-gray-500">
+                Crear registro para un vehículo
+              </p>
+            </div>
           </Link>
 
           {/* Historial */}
           <Link
             href="/historial"
-            className="flex flex-col items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 hover:bg-gray-100 transition p-6 text-center"
+            className="group rounded-2xl border border-gray-200 bg-gray-50 px-4 py-4 md:py-5 flex items-center gap-3 md:gap-4 hover:shadow-md transition-shadow"
           >
-            <span className="text-4xl">📂</span>
-            <span className="font-semibold text-gray-800">Historial</span>
-            <span className="text-xs text-gray-600">
-              Consultar presupuestos por placa
-            </span>
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white border border-gray-200">
+              <span className="text-xl">📂</span>
+            </div>
+            <div className="flex-1">
+              <h2 className="text-sm md:text-base font-semibold text-gray-800">
+                Historial
+              </h2>
+              <p className="text-[11px] md:text-xs text-gray-500">
+                Consultar presupuestos por placa
+              </p>
+            </div>
           </Link>
         </section>
 
-        <footer className="mt-8 text-center text-[11px] text-gray-400">
-          Versión 1.0 · {new Date().getFullYear()}
+        {/* Footer */}
+        <footer className="mt-6 text-center text-[11px] text-gray-400">
+          Versión 1.0 · 2025
         </footer>
       </div>
     </main>

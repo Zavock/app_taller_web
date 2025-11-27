@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
-import Image from "next/image";
 
 type Item = {
   nombre: string;
@@ -11,7 +10,6 @@ type Item = {
   precio: number;
 };
 
-// Estado inicial del formulario
 const initialDatos = {
   placa: "",
   marca: "",
@@ -33,7 +31,6 @@ export default function NuevoPresupuestoPage() {
   const [datos, setDatos] = useState(initialDatos);
   const [repuestos, setRepuestos] = useState<Item[]>([createEmptyItem()]);
   const [servicios, setServicios] = useState<Item[]>([createEmptyItem()]);
-
   const [guardando, setGuardando] = useState(false);
   const [mensaje, setMensaje] = useState<string | null>(null);
 
@@ -48,10 +45,10 @@ export default function NuevoPresupuestoPage() {
   const total = subtotalRepuestos + subtotalServicios;
 
   const inputClass =
-    "w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white";
+    "w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand bg-white";
   const labelClass = "text-xs font-semibold text-gray-600 uppercase";
   const sectionCardClass =
-    "bg-white rounded-xl border border-gray-100 p-4 md:p-5";
+    "bg-white rounded-2xl border border-gray-100 p-4 md:p-5";
 
   function actualizarItem(
     tipo: "repuesto" | "servicio",
@@ -203,10 +200,9 @@ export default function NuevoPresupuestoPage() {
         }
       }
 
-      // ✅ Mensaje de éxito
       setMensaje(`Presupuesto #${presupuesto.numero} guardado correctamente.`);
 
-      // ✅ Limpiar formulario y tablas
+      // limpiar
       setDatos(initialDatos);
       setRepuestos([createEmptyItem()]);
       setServicios([createEmptyItem()]);
@@ -216,28 +212,31 @@ export default function NuevoPresupuestoPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-100 flex items-start md:items-center justify-center px-4 py-6 md:py-10">
+    <main className="min-h-screen bg-gray-100 flex justify-center px-3 py-6 md:py-10">
       <div className="w-full max-w-4xl space-y-5">
         {/* Header */}
-        <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <Image
+        <header className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-col items-center md:flex-row md:items-center md:gap-3">
+            <img
               src="/logo-taller.svg"
-              alt="Taller de Vehículos"
-              width={190}
-              height={90}
-              priority
+              alt="Motoren Haus"
+              className="h-12 md:h-14 w-auto mb-1 md:mb-0"
             />
+            <div className="text-center md:text-left text-xs md:text-sm text-gray-500">
+              <div className="font-semibold text-gray-700 text-sm md:text-base">
+                Taller de Vehículos
+              </div>
+              <div>Ciudad · Dirección · Teléfono</div>
+            </div>
           </div>
 
-          <div className="text-xs text-gray-500 md:text-right">
+          <div className="text-center md:text-right text-xs md:text-sm text-gray-500">
             <div className="font-semibold text-gray-600">
               Nuevo presupuesto
             </div>
             <div>Registra los datos del vehículo y servicios</div>
           </div>
         </header>
-
 
         {mensaje && (
           <div className="rounded-lg border border-blue-100 bg-blue-50 px-4 py-2 text-xs text-blue-800">
@@ -255,28 +254,26 @@ export default function NuevoPresupuestoPage() {
           </h2>
 
           <div className="grid gap-3 md:grid-cols-2">
-            <div className="md:col-span-1">
+            <div>
               <label className={labelClass}>Placa *</label>
-              <div className="flex gap-2">
-                <input
-                  className={inputClass}
-                  placeholder="ABC123"
-                  value={datos.placa}
-                  onChange={(e) =>
-                    setDatos({
-                      ...datos,
-                      placa: e.target.value.toUpperCase(),
-                    })
+              <input
+                className={inputClass}
+                placeholder="ABC123"
+                value={datos.placa}
+                onChange={(e) =>
+                  setDatos({
+                    ...datos,
+                    placa: e.target.value.toUpperCase(),
+                  })
+                }
+                onBlur={() => buscarVehiculoPorPlaca()}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    buscarVehiculoPorPlaca(e.currentTarget.value);
                   }
-                  onBlur={() => buscarVehiculoPorPlaca()}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      buscarVehiculoPorPlaca(e.currentTarget.value);
-                    }
-                  }}
-                />
-              </div>
+                }}
+              />
             </div>
             <div>
               <label className={labelClass}>Propietario *</label>
@@ -304,7 +301,7 @@ export default function NuevoPresupuestoPage() {
               <label className={labelClass}>Modelo</label>
               <input
                 className={inputClass}
-                placeholder="2019, 2020..."
+                placeholder="Corolla, Spark..."
                 value={datos.modelo}
                 onChange={(e) =>
                   setDatos({ ...datos, modelo: e.target.value })
@@ -312,7 +309,7 @@ export default function NuevoPresupuestoPage() {
               />
             </div>
             <div>
-              <label className={labelClass}>Kilometraje</label>
+              <label className={labelClass}>Kilometraje (solo enteros)</label>
               <input
                 type="number"
                 inputMode="numeric"
@@ -342,10 +339,10 @@ export default function NuevoPresupuestoPage() {
           </div>
         </section>
 
-        {/* Descripción y observaciones */}
+        {/* Detalles del trabajo */}
         <section className={sectionCardClass}>
           <h2 className="text-sm font-semibold mb-3 flex items-center gap-2">
-            <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-blue-50 text-blue-600 text-sm">
+            <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-yellow-50 text-yellow-600 text-sm">
               📝
             </span>
             Detalles del trabajo
@@ -388,24 +385,82 @@ export default function NuevoPresupuestoPage() {
             </h2>
             <button
               type="button"
-              className="text-xs font-medium text-blue-600 hover:text-blue-700"
+              className="text-xs font-medium text-brand hover:text-brand/80 whitespace-nowrap"
               onClick={() => agregarItem("repuesto")}
             >
               + Agregar repuesto
             </button>
           </div>
 
-          <div className="overflow-x-auto">
+          {/* 📱 Móvil: tarjetas */}
+          <div className="space-y-3 md:hidden">
+            {repuestos.map((it, idx) => (
+              <div
+                key={idx}
+                className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-3 space-y-2"
+              >
+                <div>
+                  <label className={labelClass}>Nombre</label>
+                  <input
+                    className={inputClass}
+                    placeholder="Ej: Llanta, aceite..."
+                    value={it.nombre}
+                    onChange={(e) =>
+                      actualizarItem("repuesto", idx, "nombre", e.target.value)
+                    }
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className={labelClass}>Cant.</label>
+                    <input
+                      type="number"
+                      min={0}
+                      className={inputClass}
+                      value={it.cantidad}
+                      onChange={(e) =>
+                        actualizarItem("repuesto", idx, "cantidad", e.target.value)
+                      }
+                    />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Precio (COP)</label>
+                    <input
+                      type="number"
+                      min={0}
+                      className={inputClass}
+                      value={it.precio}
+                      onChange={(e) =>
+                        actualizarItem("repuesto", idx, "precio", e.target.value)
+                      }
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    className="text-[11px] text-red-600 hover:text-red-700"
+                    onClick={() => eliminarItem("repuesto", idx)}
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* 🖥️ Desktop / tablet: tabla */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-xs border-collapse">
               <thead>
                 <tr className="bg-gray-50">
                   <th className="border border-gray-200 px-2 py-1 text-left">
                     Nombre
                   </th>
-                  <th className="border border-gray-200 px-2 py-1 text-center w-20">
+                  <th className="border border-gray-200 px-2 py-1 text-center w-16">
                     Cant.
                   </th>
-                  <th className="border border-gray-200 px-2 py-1 text-right w-28">
+                  <th className="border border-gray-200 px-2 py-1 text-right w-24">
                     Precio (COP)
                   </th>
                   <th className="border border-gray-200 px-2 py-1 text-center w-20">
@@ -422,12 +477,7 @@ export default function NuevoPresupuestoPage() {
                         value={it.nombre}
                         placeholder="Ej: Llanta, aceite..."
                         onChange={(e) =>
-                          actualizarItem(
-                            "repuesto",
-                            idx,
-                            "nombre",
-                            e.target.value
-                          )
+                          actualizarItem("repuesto", idx, "nombre", e.target.value)
                         }
                       />
                     </td>
@@ -438,12 +488,7 @@ export default function NuevoPresupuestoPage() {
                         className={`${inputClass} h-7 text-xs text-center`}
                         value={it.cantidad}
                         onChange={(e) =>
-                          actualizarItem(
-                            "repuesto",
-                            idx,
-                            "cantidad",
-                            e.target.value
-                          )
+                          actualizarItem("repuesto", idx, "cantidad", e.target.value)
                         }
                       />
                     </td>
@@ -454,12 +499,7 @@ export default function NuevoPresupuestoPage() {
                         className={`${inputClass} h-7 text-xs text-right`}
                         value={it.precio}
                         onChange={(e) =>
-                          actualizarItem(
-                            "repuesto",
-                            idx,
-                            "precio",
-                            e.target.value
-                          )
+                          actualizarItem("repuesto", idx, "precio", e.target.value)
                         }
                       />
                     </td>
@@ -489,6 +529,7 @@ export default function NuevoPresupuestoPage() {
           </div>
         </section>
 
+
         {/* Servicios */}
         <section className={sectionCardClass}>
           <div className="flex items-center justify-between mb-3">
@@ -500,24 +541,82 @@ export default function NuevoPresupuestoPage() {
             </h2>
             <button
               type="button"
-              className="text-xs font-medium text-blue-600 hover:text-blue-700"
+              className="text-xs font-medium text-brand hover:text-brand/80 whitespace-nowrap"
               onClick={() => agregarItem("servicio")}
             >
               + Agregar servicio
             </button>
           </div>
 
-          <div className="overflow-x-auto">
+          {/* 📱 Móvil: tarjetas */}
+          <div className="space-y-3 md:hidden">
+            {servicios.map((it, idx) => (
+              <div
+                key={idx}
+                className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-3 space-y-2"
+              >
+                <div>
+                  <label className={labelClass}>Servicio</label>
+                  <input
+                    className={inputClass}
+                    placeholder="Ej: Cambio de aceite..."
+                    value={it.nombre}
+                    onChange={(e) =>
+                      actualizarItem("servicio", idx, "nombre", e.target.value)
+                    }
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className={labelClass}>Cant.</label>
+                    <input
+                      type="number"
+                      min={0}
+                      className={inputClass}
+                      value={it.cantidad}
+                      onChange={(e) =>
+                        actualizarItem("servicio", idx, "cantidad", e.target.value)
+                      }
+                    />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Precio (COP)</label>
+                    <input
+                      type="number"
+                      min={0}
+                      className={inputClass}
+                      value={it.precio}
+                      onChange={(e) =>
+                        actualizarItem("servicio", idx, "precio", e.target.value)
+                      }
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    className="text-[11px] text-red-600 hover:text-red-700"
+                    onClick={() => eliminarItem("servicio", idx)}
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* 🖥️ Desktop / tablet: tabla */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-xs border-collapse">
               <thead>
                 <tr className="bg-gray-50">
                   <th className="border border-gray-200 px-2 py-1 text-left">
                     Servicio
                   </th>
-                  <th className="border border-gray-200 px-2 py-1 text-center w-20">
+                  <th className="border border-gray-200 px-2 py-1 text-center w-16">
                     Cant.
                   </th>
-                  <th className="border border-gray-200 px-2 py-1 text-right w-28">
+                  <th className="border border-gray-200 px-2 py-1 text-right w-24">
                     Precio (COP)
                   </th>
                   <th className="border border-gray-200 px-2 py-1 text-center w-20">
@@ -534,12 +633,7 @@ export default function NuevoPresupuestoPage() {
                         value={it.nombre}
                         placeholder="Ej: Cambio de aceite..."
                         onChange={(e) =>
-                          actualizarItem(
-                            "servicio",
-                            idx,
-                            "nombre",
-                            e.target.value
-                          )
+                          actualizarItem("servicio", idx, "nombre", e.target.value)
                         }
                       />
                     </td>
@@ -550,12 +644,7 @@ export default function NuevoPresupuestoPage() {
                         className={`${inputClass} h-7 text-xs text-center`}
                         value={it.cantidad}
                         onChange={(e) =>
-                          actualizarItem(
-                            "servicio",
-                            idx,
-                            "cantidad",
-                            e.target.value
-                          )
+                          actualizarItem("servicio", idx, "cantidad", e.target.value)
                         }
                       />
                     </td>
@@ -566,12 +655,7 @@ export default function NuevoPresupuestoPage() {
                         className={`${inputClass} h-7 text-xs text-right`}
                         value={it.precio}
                         onChange={(e) =>
-                          actualizarItem(
-                            "servicio",
-                            idx,
-                            "precio",
-                            e.target.value
-                          )
+                          actualizarItem("servicio", idx, "precio", e.target.value)
                         }
                       />
                     </td>
@@ -601,9 +685,10 @@ export default function NuevoPresupuestoPage() {
           </div>
         </section>
 
+
         {/* Totales + botones */}
         <section className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-          <div className="bg-white rounded-xl border border-gray-100 px-4 py-3 text-sm text-right md:text-left">
+          <div className="bg-white rounded-2xl border border-gray-100 px-4 py-3 text-sm text-right md:text-left">
             <div className="text-gray-600 text-xs">
               Subtotal repuestos:{" "}
               <span className="font-semibold text-gray-800">
@@ -635,7 +720,7 @@ export default function NuevoPresupuestoPage() {
             <button
               onClick={handleGuardar}
               disabled={guardando}
-              className="w-full md:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow hover:bg-blue-700 disabled:opacity-60"
+              className="w-full md:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-brand px-6 py-3 text-sm font-semibold text-white shadow hover:bg-brand/90 disabled:opacity-60"
             >
               {guardando ? "Guardando..." : "Guardar presupuesto"}
             </button>

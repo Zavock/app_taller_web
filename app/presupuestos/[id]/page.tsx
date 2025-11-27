@@ -90,26 +90,38 @@ export default function PresupuestoDetallePage({
 
   async function handleGenerarPdf() {
     if (!contentRef.current || !presupuesto) return;
+
     try {
       setGenerandoPdf(true);
+
       const element = contentRef.current;
 
       const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
+        backgroundColor: "#ffffff",
       });
+
       const imgData = canvas.toDataURL("image/png");
 
       const pdf = new jsPDF("p", "mm", "a4");
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
 
-      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+      // Ajustamos la imagen al ANCHO de la página, manteniendo proporción
+      const imgWidth = pageWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      // La colocamos arriba; si el contenido no llena la altura,
+      // queda un margen inferior (como cualquier factura corta).
+      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+
       pdf.save(`presupuesto-${presupuesto.numero}.pdf`);
     } finally {
       setGenerandoPdf(false);
     }
   }
+
 
   if (cargando) {
     return (
@@ -157,7 +169,11 @@ export default function PresupuestoDetallePage({
       {/* CONTENIDO QUE SE CONVIERTE A PDF */}
       <div
         ref={contentRef}
-        className="bg-[#ffffff] p-6 border rounded shadow text-sm text-[#111827]"
+        className="bg-[#ffffff] p-6 text-sm text-[#111827] mx-auto"
+        style={{
+          width: "794px",       // ancho aproximado de A4 a 96dpi
+          minHeight: "1000px",  // un poco menos que el alto completo
+        }}
       >
         {/* Encabezado con logo y datos básicos */}
         <header className="flex justify-between items-start mb-3">
@@ -379,10 +395,6 @@ export default function PresupuestoDetallePage({
             </div>
           </div>
         </section>
-
-        <footer className="mt-6 text-center text-[10px] text-[#6b7280]">
-          Gracias por confiar en nosotros.
-        </footer>
       </div>
     </div>
   );
