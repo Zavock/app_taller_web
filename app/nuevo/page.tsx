@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
+import Image from "next/image";
 
 type Item = {
   nombre: string;
@@ -219,21 +220,24 @@ export default function NuevoPresupuestoPage() {
       <div className="w-full max-w-4xl space-y-5">
         {/* Header */}
         <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-blue-700">
-              Nuevo presupuesto
-            </h1>
-            <p className="text-xs md:text-sm text-gray-500 mt-1">
-              Registra los datos del vehículo, repuestos y servicios realizados.
-            </p>
+          <div className="flex items-center gap-3">
+            <Image
+              src="/logo-taller.svg"
+              alt="Taller de Vehículos"
+              width={190}
+              height={90}
+              priority
+            />
           </div>
+
           <div className="text-xs text-gray-500 md:text-right">
             <div className="font-semibold text-gray-600">
-              MOTORENHAUS
+              Nuevo presupuesto
             </div>
-            <div>Ciudad · Teléfono · Dirección</div>
+            <div>Registra los datos del vehículo y servicios</div>
           </div>
         </header>
+
 
         {mensaje && (
           <div className="rounded-lg border border-blue-100 bg-blue-50 px-4 py-2 text-xs text-blue-800">

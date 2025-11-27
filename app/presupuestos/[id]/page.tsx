@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
@@ -36,6 +37,7 @@ export default function PresupuestoDetallePage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  // Next 15: params viene como Promise
   const { id } = React.use(params);
 
   const [presupuesto, setPresupuesto] = React.useState<Presupuesto | null>(
@@ -111,9 +113,7 @@ export default function PresupuestoDetallePage({
 
   if (cargando) {
     return (
-      <div className="max-w-3xl mx-auto p-4">
-        Cargando presupuesto...
-      </div>
+      <div className="max-w-3xl mx-auto p-4">Cargando presupuesto...</div>
     );
   }
 
@@ -130,17 +130,28 @@ export default function PresupuestoDetallePage({
 
   return (
     <div className="max-w-3xl mx-auto p-4 space-y-4">
+      {/* Encabezado superior fuera del PDF */}
       <div className="flex justify-between items-center">
         <h1 className="text-xl font-bold">
           Presupuesto #{presupuesto.numero}
         </h1>
-        <button
-          onClick={handleGenerarPdf}
-          disabled={generandoPdf}
-          className="px-4 py-2 rounded bg-blue-600 text-white text-sm font-semibold disabled:opacity-60"
-        >
-          {generandoPdf ? "Generando PDF..." : "Descargar PDF"}
-        </button>
+
+        <div className="flex gap-2">
+          <button
+            onClick={handleGenerarPdf}
+            disabled={generandoPdf}
+            className="px-4 py-2 rounded bg-blue-600 text-white text-sm font-semibold disabled:opacity-60"
+          >
+            {generandoPdf ? "Generando PDF..." : "Descargar PDF"}
+          </button>
+
+          <Link
+            href="/historial"
+            className="px-4 py-2 rounded border border-gray-300 bg-white text-sm font-semibold text-gray-700 hover:bg-gray-50"
+          >
+            Volver al historial
+          </Link>
+        </div>
       </div>
 
       {/* CONTENIDO QUE SE CONVIERTE A PDF */}
@@ -148,16 +159,17 @@ export default function PresupuestoDetallePage({
         ref={contentRef}
         className="bg-[#ffffff] p-6 border rounded shadow text-sm text-[#111827]"
       >
-        {/* Encabezado */}
-        <header className="flex justify-between items-start mb-4">
-          <div>
-            <div className="text-2xl font-bold text-[#1d4ed8]">
-              MOTORENHAUS
-            </div>
-            <div className="text-xs text-[#6b7280]">
-              Dirección · Teléfono · Ciudad
-            </div>
+        {/* Encabezado con logo y datos básicos */}
+        <header className="flex justify-between items-start mb-3">
+          <div className="flex flex-col">
+            {/* Cambia el src si tu SVG se llama distinto */}
+            <img
+              src="/logo-taller.svg"
+              alt="Motoren Haus"
+              style={{ height: 90 }}
+            />
           </div>
+
           <div className="text-right text-xs text-[#6b7280]">
             <div className="font-semibold text-[#111827]">Presupuesto</div>
             <div>N° {presupuesto.numero}</div>
@@ -165,6 +177,9 @@ export default function PresupuestoDetallePage({
               Fecha:{" "}
               {new Date(presupuesto.fecha).toLocaleDateString("es-CO")}
             </div>
+            {presupuesto.kilometraje && (
+              <div>Kilometraje: {presupuesto.kilometraje}</div>
+            )}
           </div>
         </header>
 

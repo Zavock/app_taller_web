@@ -1,15 +1,23 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function HomePage() {
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="w-full max-w-xl bg-white rounded-xl shadow p-8">
-        <header className="text-center mb-8">
+        <header className="text-center mb-8 flex flex-col items-center gap-2">
+          <Image
+            src="/logo-taller.svg"
+            alt="Taller de Vehículos"
+            width={380}
+            height={150}
+            priority
+          />
           <h1 className="text-3xl font-bold text-blue-700">
-            MOTORENHAUS
+            Presupuestos del taller
           </h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Presupuestos y registro de servicios
+          <p className="text-sm text-gray-500">
+            Crear y consultar presupuestos de servicios y repuestos
           </p>
         </header>
 
