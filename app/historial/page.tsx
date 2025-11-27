@@ -18,32 +18,53 @@ export default function HistorialPage() {
   const [placa, setPlaca] = useState("");
   const [resultados, setResultados] = useState<Presupuesto[]>([]);
   const [cargando, setCargando] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
   const router = useRouter();
 
-  async function buscar() {
+  const PAGE_SIZE = 20;
+  const [page, setPage] = useState(0);
+  const [hayMas, setHayMas] = useState(false);
+
+  async function buscar(pagina = 0) {
     setCargando(true);
+    setErrorMsg(null);
+
+    const desde = pagina * PAGE_SIZE;
+    const hasta = desde + PAGE_SIZE - 1;
 
     let query = supabase
       .from("presupuestos")
-      .select("id, numero, fecha, propietario, placa, total")
+      .select("id, numero, fecha, propietario, placa, total", {
+        count: "exact",
+      })
       .order("fecha", { ascending: false })
-      .limit(50);
+      .range(desde, hasta);
 
-    if (placa.trim() !== "") {
-      query = query.ilike("placa", `%${placa.trim()}%`);
+    const placaLimpia = placa.trim().toUpperCase();
+    if (placaLimpia !== "") {
+      query = query.ilike("placa", `%${placaLimpia}%`);
     }
 
-    const { data, error } = await query;
+    const { data, error, count } = await query;
 
-    if (!error && data) {
+    if (error) {
+      console.error(error);
+      setResultados([]);
+      setHayMas(false);
+      setErrorMsg("Error consultando el historial.");
+    } else if (data) {
       setResultados(data as Presupuesto[]);
+      setPage(pagina);
+      setHayMas(count !== null ? hasta + 1 < count : false);
     }
 
     setCargando(false);
   }
 
   useEffect(() => {
-    buscar();
+    buscar(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -89,19 +110,23 @@ export default function HistorialPage() {
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();
-                    buscar();
+                    buscar(0); // siempre reinicia a la primera página
                   }
                 }}
               />
             </div>
             <button
-              onClick={buscar}
+              onClick={() => buscar(0)} // reinicia a página 0 al buscar
               className="w-full md:w-auto inline-flex items-center justify-center rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand/90 disabled:opacity-60"
               disabled={cargando}
             >
               {cargando ? "Buscando..." : "Buscar"}
             </button>
           </div>
+
+          {errorMsg && (
+            <p className="mt-2 text-xs text-red-600">{errorMsg}</p>
+          )}
         </section>
 
         {/* Resultados */}
@@ -231,6 +256,29 @@ export default function HistorialPage() {
                 )}
               </tbody>
             </table>
+          </div>
+
+          {/* Paginación */}
+          <div className="mt-4 flex items-center justify-between text-xs md:text-sm">
+            <button
+              onClick={() => buscar(page - 1)}
+              disabled={page === 0 || cargando}
+              className="px-3 py-1 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-50"
+            >
+              Anterior
+            </button>
+
+            <span className="text-gray-600">
+              Página <span className="font-semibold">{page + 1}</span>
+            </span>
+
+            <button
+              onClick={() => buscar(page + 1)}
+              disabled={!hayMas || cargando}
+              className="px-3 py-1 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-50"
+            >
+              Siguiente
+            </button>
           </div>
         </section>
       </div>
