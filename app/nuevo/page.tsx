@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
+import { Car, FileText, Package, Wrench, Trash2 } from "lucide-react";
 
 type Item = {
   nombre: string;
@@ -33,8 +34,6 @@ export default function NuevoPresupuestoPage() {
   const [servicios, setServicios] = useState<Item[]>([createEmptyItem()]);
   const [guardando, setGuardando] = useState(false);
   const [mensaje, setMensaje] = useState<string | null>(null);
-
-  // 🔒 nuevo estado para bloquear los datos del vehículo
   const [datosBloqueados, setDatosBloqueados] = useState(false);
 
   const subtotalRepuestos = repuestos.reduce(
@@ -117,12 +116,9 @@ export default function NuevoPresupuestoPage() {
           kilometraje: kmSoloNumeros || prev.kilometraje,
         }));
 
-        // 🔒 bloqueamos los datos porque ya existe el vehículo
         setDatosBloqueados(true);
-
         setMensaje(`Se cargó información previa para la placa ${placaLimpia}.`);
       } else {
-        // No se encontró info previa → dejamos todo editable
         setDatosBloqueados(false);
         setMensaje(
           `No se encontró información previa para la placa ${placaLimpia}.`
@@ -214,7 +210,7 @@ export default function NuevoPresupuestoPage() {
       setDatos(initialDatos);
       setRepuestos([createEmptyItem()]);
       setServicios([createEmptyItem()]);
-      setDatosBloqueados(false); // 🔓 volvemos a dejar los campos editables
+      setDatosBloqueados(false);
     } finally {
       setGuardando(false);
     }
@@ -229,7 +225,7 @@ export default function NuevoPresupuestoPage() {
             <img
               src="/logo-taller.svg"
               alt="Motoren Haus"
-              className="h-20 md:h-14 w-auto mb-1 md:mb-0"
+              className="h-12 md:h-14 w-auto mb-1 md:mb-0"
             />
             <div className="text-center md:text-left text-xs md:text-sm text-gray-500">
               <div className="font-semibold text-gray-700 text-sm md:text-base">
@@ -255,8 +251,8 @@ export default function NuevoPresupuestoPage() {
         {/* Datos del vehículo */}
         <section className={sectionCardClass}>
           <h2 className="text-sm font-semibold mb-3 flex items-center gap-2">
-            <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-blue-50 text-blue-600 text-sm">
-              🚗
+            <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-blue-50 text-blue-600">
+              <Car className="h-4 w-4" />
             </span>
             Datos del vehículo
           </h2>
@@ -321,7 +317,7 @@ export default function NuevoPresupuestoPage() {
               />
             </div>
             <div>
-              <label className={labelClass}>Kilometraje</label>
+              <label className={labelClass}>Kilometraje (solo enteros)</label>
               <input
                 type="number"
                 inputMode="numeric"
@@ -335,7 +331,6 @@ export default function NuevoPresupuestoPage() {
                     setDatos({ ...datos, kilometraje: value });
                   }
                 }}
-                // Kilometraje siempre editable
               />
             </div>
             <div>
@@ -356,8 +351,8 @@ export default function NuevoPresupuestoPage() {
         {/* Detalles del trabajo */}
         <section className={sectionCardClass}>
           <h2 className="text-sm font-semibold mb-3 flex items-center gap-2">
-            <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-yellow-50 text-yellow-600 text-sm">
-              📝
+            <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-yellow-50 text-yellow-600">
+              <FileText className="h-4 w-4" />
             </span>
             Detalles del trabajo
           </h2>
@@ -389,16 +384,11 @@ export default function NuevoPresupuestoPage() {
         </section>
 
         {/* Repuestos */}
-        {/* ... (resto del código de repuestos, servicios y totales se queda igual) ... */}
-        {/* Para no repetirte todo otra vez, solo recuerda que no cambia nada de esa parte */}
-        {/* Si quieres también te los reenvío completos con cualquier ajuste extra. */}
-        
-        {/* Repuestos */}
         <section className={sectionCardClass}>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-semibold flex items-center gap-2">
-              <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-green-50 text-green-600 text-sm">
-                🧩
+              <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-green-50 text-green-600">
+                <Package className="h-4 w-4" />
               </span>
               Repuestos
             </h2>
@@ -463,10 +453,12 @@ export default function NuevoPresupuestoPage() {
                 <div className="flex justify-end">
                   <button
                     type="button"
-                    className="text-[11px] text-red-600 hover:text-red-700"
+                    className="text-red-600 hover:text-red-700"
                     onClick={() => eliminarItem("repuesto", idx)}
+                    aria-label="Eliminar repuesto"
+                    title="Eliminar repuesto"
                   >
-                    Eliminar
+                    <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
               </div>
@@ -545,10 +537,12 @@ export default function NuevoPresupuestoPage() {
                     <td className="border border-gray-200 px-2 py-1 text-center">
                       <button
                         type="button"
-                        className="text-[11px] text-red-600 hover:text-red-700"
+                        className="text-red-600 hover:text-red-700"
                         onClick={() => eliminarItem("repuesto", idx)}
+                        aria-label="Eliminar repuesto"
+                        title="Eliminar repuesto"
                       >
-                        Eliminar
+                        <Trash2 className="h-4 w-4 inline-block" />
                       </button>
                     </td>
                   </tr>
@@ -572,8 +566,8 @@ export default function NuevoPresupuestoPage() {
         <section className={sectionCardClass}>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-semibold flex items-center gap-2">
-              <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-orange-50 text-orange-600 text-sm">
-                🛠️
+              <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-orange-50 text-orange-600">
+                <Wrench className="h-4 w-4" />
               </span>
               Servicios
             </h2>
@@ -638,10 +632,12 @@ export default function NuevoPresupuestoPage() {
                 <div className="flex justify-end">
                   <button
                     type="button"
-                    className="text-[11px] text-red-600 hover:text-red-700"
+                    className="text-red-600 hover:text-red-700"
                     onClick={() => eliminarItem("servicio", idx)}
+                    aria-label="Eliminar servicio"
+                    title="Eliminar servicio"
                   >
-                    Eliminar
+                    <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
               </div>
@@ -720,10 +716,12 @@ export default function NuevoPresupuestoPage() {
                     <td className="border border-gray-200 px-2 py-1 text-center">
                       <button
                         type="button"
-                        className="text-[11px] text-red-600 hover:text-red-700"
+                        className="text-red-600 hover:text-red-700"
                         onClick={() => eliminarItem("servicio", idx)}
+                        aria-label="Eliminar servicio"
+                        title="Eliminar servicio"
                       >
-                        Eliminar
+                        <Trash2 className="h-4 w-4 inline-block" />
                       </button>
                     </td>
                   </tr>

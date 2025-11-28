@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { FileText, Clock } from "lucide-react";
 
 export default function HomePage() {
   return (
@@ -31,7 +32,7 @@ export default function HomePage() {
             className="group rounded-2xl border border-[#dbe5ff] bg-[#f5f8ff] px-4 py-4 md:py-5 flex items-center gap-3 md:gap-4 hover:shadow-md transition-shadow"
           >
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white border border-[#dbe5ff]">
-              <span className="text-xl">📄</span>
+              <FileText className="h-5 w-5 text-brand" />
             </div>
             <div className="flex-1">
               <h2 className="text-sm md:text-base font-semibold text-brand">
@@ -49,7 +50,7 @@ export default function HomePage() {
             className="group rounded-2xl border border-gray-200 bg-gray-50 px-4 py-4 md:py-5 flex items-center gap-3 md:gap-4 hover:shadow-md transition-shadow"
           >
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white border border-gray-200">
-              <span className="text-xl">📂</span>
+              <Clock className="h-5 w-5 text-gray-700" />
             </div>
             <div className="flex-1">
               <h2 className="text-sm md:text-base font-semibold text-gray-800">
