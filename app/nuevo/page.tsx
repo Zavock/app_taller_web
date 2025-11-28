@@ -34,6 +34,9 @@ export default function NuevoPresupuestoPage() {
   const [guardando, setGuardando] = useState(false);
   const [mensaje, setMensaje] = useState<string | null>(null);
 
+  // 🔒 nuevo estado para bloquear los datos del vehículo
+  const [datosBloqueados, setDatosBloqueados] = useState(false);
+
   const subtotalRepuestos = repuestos.reduce(
     (acc, it) => acc + (it.cantidad || 0) * (it.precio || 0),
     0
@@ -45,7 +48,7 @@ export default function NuevoPresupuestoPage() {
   const total = subtotalRepuestos + subtotalServicios;
 
   const inputClass =
-    "w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand bg-white";
+    "w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand bg-white disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed";
   const labelClass = "text-xs font-semibold text-gray-600 uppercase";
   const sectionCardClass =
     "bg-white rounded-2xl border border-gray-100 p-4 md:p-5";
@@ -114,8 +117,13 @@ export default function NuevoPresupuestoPage() {
           kilometraje: kmSoloNumeros || prev.kilometraje,
         }));
 
+        // 🔒 bloqueamos los datos porque ya existe el vehículo
+        setDatosBloqueados(true);
+
         setMensaje(`Se cargó información previa para la placa ${placaLimpia}.`);
       } else {
+        // No se encontró info previa → dejamos todo editable
+        setDatosBloqueados(false);
         setMensaje(
           `No se encontró información previa para la placa ${placaLimpia}.`
         );
@@ -206,6 +214,7 @@ export default function NuevoPresupuestoPage() {
       setDatos(initialDatos);
       setRepuestos([createEmptyItem()]);
       setServicios([createEmptyItem()]);
+      setDatosBloqueados(false); // 🔓 volvemos a dejar los campos editables
     } finally {
       setGuardando(false);
     }
@@ -220,13 +229,12 @@ export default function NuevoPresupuestoPage() {
             <img
               src="/logo-taller.svg"
               alt="Motoren Haus"
-              className="h-12 md:h-14 w-auto mb-1 md:mb-0"
+              className="h-20 md:h-14 w-auto mb-1 md:mb-0"
             />
             <div className="text-center md:text-left text-xs md:text-sm text-gray-500">
               <div className="font-semibold text-gray-700 text-sm md:text-base">
                 Taller de Vehículos
               </div>
-              <div>Ciudad · Dirección · Teléfono</div>
             </div>
           </div>
 
@@ -273,6 +281,7 @@ export default function NuevoPresupuestoPage() {
                     buscarVehiculoPorPlaca(e.currentTarget.value);
                   }
                 }}
+                disabled={datosBloqueados}
               />
             </div>
             <div>
@@ -284,6 +293,7 @@ export default function NuevoPresupuestoPage() {
                 onChange={(e) =>
                   setDatos({ ...datos, propietario: e.target.value })
                 }
+                disabled={datosBloqueados}
               />
             </div>
             <div>
@@ -295,6 +305,7 @@ export default function NuevoPresupuestoPage() {
                 onChange={(e) =>
                   setDatos({ ...datos, marca: e.target.value })
                 }
+                disabled={datosBloqueados}
               />
             </div>
             <div>
@@ -306,10 +317,11 @@ export default function NuevoPresupuestoPage() {
                 onChange={(e) =>
                   setDatos({ ...datos, modelo: e.target.value })
                 }
+                disabled={datosBloqueados}
               />
             </div>
             <div>
-              <label className={labelClass}>Kilometraje (solo enteros)</label>
+              <label className={labelClass}>Kilometraje</label>
               <input
                 type="number"
                 inputMode="numeric"
@@ -323,6 +335,7 @@ export default function NuevoPresupuestoPage() {
                     setDatos({ ...datos, kilometraje: value });
                   }
                 }}
+                // Kilometraje siempre editable
               />
             </div>
             <div>
@@ -334,6 +347,7 @@ export default function NuevoPresupuestoPage() {
                 onChange={(e) =>
                   setDatos({ ...datos, vin: e.target.value })
                 }
+                disabled={datosBloqueados}
               />
             </div>
           </div>
@@ -374,6 +388,11 @@ export default function NuevoPresupuestoPage() {
           </div>
         </section>
 
+        {/* Repuestos */}
+        {/* ... (resto del código de repuestos, servicios y totales se queda igual) ... */}
+        {/* Para no repetirte todo otra vez, solo recuerda que no cambia nada de esa parte */}
+        {/* Si quieres también te los reenvío completos con cualquier ajuste extra. */}
+        
         {/* Repuestos */}
         <section className={sectionCardClass}>
           <div className="flex items-center justify-between mb-3">
@@ -419,7 +438,12 @@ export default function NuevoPresupuestoPage() {
                       className={inputClass}
                       value={it.cantidad}
                       onChange={(e) =>
-                        actualizarItem("repuesto", idx, "cantidad", e.target.value)
+                        actualizarItem(
+                          "repuesto",
+                          idx,
+                          "cantidad",
+                          e.target.value
+                        )
                       }
                     />
                   </div>
@@ -477,7 +501,12 @@ export default function NuevoPresupuestoPage() {
                         value={it.nombre}
                         placeholder="Ej: Llanta, aceite..."
                         onChange={(e) =>
-                          actualizarItem("repuesto", idx, "nombre", e.target.value)
+                          actualizarItem(
+                            "repuesto",
+                            idx,
+                            "nombre",
+                            e.target.value
+                          )
                         }
                       />
                     </td>
@@ -488,7 +517,12 @@ export default function NuevoPresupuestoPage() {
                         className={`${inputClass} h-7 text-xs text-center`}
                         value={it.cantidad}
                         onChange={(e) =>
-                          actualizarItem("repuesto", idx, "cantidad", e.target.value)
+                          actualizarItem(
+                            "repuesto",
+                            idx,
+                            "cantidad",
+                            e.target.value
+                          )
                         }
                       />
                     </td>
@@ -499,7 +533,12 @@ export default function NuevoPresupuestoPage() {
                         className={`${inputClass} h-7 text-xs text-right`}
                         value={it.precio}
                         onChange={(e) =>
-                          actualizarItem("repuesto", idx, "precio", e.target.value)
+                          actualizarItem(
+                            "repuesto",
+                            idx,
+                            "precio",
+                            e.target.value
+                          )
                         }
                       />
                     </td>
@@ -528,7 +567,6 @@ export default function NuevoPresupuestoPage() {
             </span>
           </div>
         </section>
-
 
         {/* Servicios */}
         <section className={sectionCardClass}>
@@ -575,7 +613,12 @@ export default function NuevoPresupuestoPage() {
                       className={inputClass}
                       value={it.cantidad}
                       onChange={(e) =>
-                        actualizarItem("servicio", idx, "cantidad", e.target.value)
+                        actualizarItem(
+                          "servicio",
+                          idx,
+                          "cantidad",
+                          e.target.value
+                        )
                       }
                     />
                   </div>
@@ -633,7 +676,12 @@ export default function NuevoPresupuestoPage() {
                         value={it.nombre}
                         placeholder="Ej: Cambio de aceite..."
                         onChange={(e) =>
-                          actualizarItem("servicio", idx, "nombre", e.target.value)
+                          actualizarItem(
+                            "servicio",
+                            idx,
+                            "nombre",
+                            e.target.value
+                          )
                         }
                       />
                     </td>
@@ -644,7 +692,12 @@ export default function NuevoPresupuestoPage() {
                         className={`${inputClass} h-7 text-xs text-center`}
                         value={it.cantidad}
                         onChange={(e) =>
-                          actualizarItem("servicio", idx, "cantidad", e.target.value)
+                          actualizarItem(
+                            "servicio",
+                            idx,
+                            "cantidad",
+                            e.target.value
+                          )
                         }
                       />
                     </td>
@@ -655,7 +708,12 @@ export default function NuevoPresupuestoPage() {
                         className={`${inputClass} h-7 text-xs text-right`}
                         value={it.precio}
                         onChange={(e) =>
-                          actualizarItem("servicio", idx, "precio", e.target.value)
+                          actualizarItem(
+                            "servicio",
+                            idx,
+                            "precio",
+                            e.target.value
+                          )
                         }
                       />
                     </td>
@@ -684,7 +742,6 @@ export default function NuevoPresupuestoPage() {
             </span>
           </div>
         </section>
-
 
         {/* Totales + botones */}
         <section className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
