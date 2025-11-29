@@ -7,8 +7,8 @@ import { Car, FileText, Package, Wrench, Trash2 } from "lucide-react";
 
 type Item = {
   nombre: string;
-  cantidad: number;
-  precio: number;
+  cantidad: number | "";
+  precio: number | "";
 };
 
 const initialDatos = {
@@ -24,8 +24,8 @@ const initialDatos = {
 
 const createEmptyItem = (): Item => ({
   nombre: "",
-  cantidad: 1,
-  precio: 0,
+  cantidad: "",
+  precio: "",
 });
 
 export default function NuevoPresupuestoPage() {
@@ -37,13 +37,17 @@ export default function NuevoPresupuestoPage() {
   const [datosBloqueados, setDatosBloqueados] = useState(false);
 
   const subtotalRepuestos = repuestos.reduce(
-    (acc, it) => acc + (it.cantidad || 0) * (it.precio || 0),
+    (acc, it) =>
+      acc + (Number(it.cantidad) || 0) * (Number(it.precio) || 0),
     0
   );
+
   const subtotalServicios = servicios.reduce(
-    (acc, it) => acc + (it.cantidad || 0) * (it.precio || 0),
+    (acc, it) =>
+      acc + (Number(it.cantidad) || 0) * (Number(it.precio) || 0),
     0
   );
+
   const total = subtotalRepuestos + subtotalServicios;
 
   const inputClass =
@@ -59,9 +63,19 @@ export default function NuevoPresupuestoPage() {
     valor: any
   ) {
     const lista = tipo === "repuesto" ? [...repuestos] : [...servicios];
-    // @ts-ignore
-    lista[index][campo] =
-      campo === "nombre" ? valor : Number(valor) || 0;
+
+    if (campo === "nombre") {
+      lista[index].nombre = valor;
+    } else {
+      // cantidad / precio: permitir vacío
+      if (valor === "") {
+        // @ts-ignore
+        lista[index][campo] = "";
+      } else {
+        // @ts-ignore
+        lista[index][campo] = Number(valor);
+      }
+    }
 
     if (tipo === "repuesto") setRepuestos(lista);
     else setServicios(lista);
@@ -167,29 +181,35 @@ export default function NuevoPresupuestoPage() {
 
       repuestos
         .filter((it) => it.nombre.trim() !== "")
-        .forEach((it) =>
+        .forEach((it) => {
+          const cantidad = Number(it.cantidad) || 0;
+          const precio = Number(it.precio) || 0;
+
           itemsInsert.push({
             presupuesto_id: presupuesto.id,
             tipo: "repuesto",
             nombre: it.nombre,
-            cantidad: it.cantidad,
-            precio_unitario: it.precio,
-            total: it.cantidad * it.precio,
-          })
-        );
+            cantidad,
+            precio_unitario: precio,
+            total: cantidad * precio,
+          });
+        });
 
       servicios
         .filter((it) => it.nombre.trim() !== "")
-        .forEach((it) =>
+        .forEach((it) => {
+          const cantidad = Number(it.cantidad) || 0;
+          const precio = Number(it.precio) || 0;
+
           itemsInsert.push({
             presupuesto_id: presupuesto.id,
             tipo: "servicio",
             nombre: it.nombre,
-            cantidad: it.cantidad,
-            precio_unitario: it.precio,
-            total: it.cantidad * it.precio,
-          })
-        );
+            cantidad,
+            precio_unitario: precio,
+            total: cantidad * precio,
+          });
+        });
 
       if (itemsInsert.length > 0) {
         const { error: itemsError } = await supabase
