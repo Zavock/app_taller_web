@@ -328,7 +328,7 @@ export default function NuevoPresupuestoPage() {
               <label className={labelClass}>Modelo</label>
               <input
                 className={inputClass}
-                placeholder="Corolla, Spark..."
+                placeholder="2010, 2012..."
                 value={datos.modelo}
                 onChange={(e) =>
                   setDatos({ ...datos, modelo: e.target.value })

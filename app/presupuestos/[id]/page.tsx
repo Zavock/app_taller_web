@@ -88,6 +88,14 @@ export default function PresupuestoDetallePage({
     cargarDatos();
   }, [id]);
 
+  function formatKilometraje(value: number | string | null | undefined) {
+    if (value === null || value === undefined || value === "") return "-";
+    return Number(value).toLocaleString("es-CO", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    });
+  }
+
   async function handleGenerarPdf() {
     if (!contentRef.current || !presupuesto) return;
 
@@ -98,11 +106,11 @@ export default function PresupuestoDetallePage({
 
       // 🔁 Clonamos el contenido para el PDF
       const cloned = original.cloneNode(true) as HTMLElement;
-      cloned.style.width = "794px";           // ancho fijo A4
+      cloned.style.width = "794px"; // ancho fijo A4
       cloned.style.padding = "24px";
       cloned.style.background = "#ffffff";
       cloned.style.position = "fixed";
-      cloned.style.left = "-10000px";         // lo escondemos fuera de pantalla
+      cloned.style.left = "-10000px"; // lo escondemos fuera de pantalla
       cloned.style.top = "0";
       cloned.style.zIndex = "-1";
 
@@ -130,7 +138,6 @@ export default function PresupuestoDetallePage({
       setGenerandoPdf(false);
     }
   }
-
 
   if (cargando) {
     return (
@@ -210,7 +217,10 @@ export default function PresupuestoDetallePage({
                     {new Date(presupuesto.fecha).toLocaleDateString("es-CO")}
                   </div>
                   {presupuesto.kilometraje && (
-                    <div>Kilometraje: {presupuesto.kilometraje}</div>
+                    <div>
+                      Kilometraje:{" "}
+                      {formatKilometraje(presupuesto.kilometraje)}
+                    </div>
                   )}
                 </div>
               </div>
@@ -234,7 +244,7 @@ export default function PresupuestoDetallePage({
               </div>
               <div>
                 <span className="font-semibold">Kilometraje: </span>
-                {presupuesto.kilometraje || "-"}
+                {formatKilometraje(presupuesto.kilometraje)}
               </div>
               <div>
                 <span className="font-semibold">VIN: </span>
