@@ -317,7 +317,7 @@ export default function NuevoPresupuestoPage() {
               />
             </div>
             <div>
-              <label className={labelClass}>Kilometraje (solo enteros)</label>
+              <label className={labelClass}>Kilometraje</label>
               <input
                 type="number"
                 inputMode="numeric"
