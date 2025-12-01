@@ -32,6 +32,12 @@ type Item = {
   total: number;
 };
 
+function formatFechaISO(fecha: string | null | undefined) {
+  if (!fecha) return "-";
+  const [year, month, day] = fecha.split("-"); // "2025-12-01"
+  return `${day}/${month}/${year}`;           // "01/12/2025"
+}
+
 export default function PresupuestoDetallePage({
   params,
 }: {
@@ -214,7 +220,7 @@ export default function PresupuestoDetallePage({
                   <div>N° {presupuesto.numero}</div>
                   <div>
                     Fecha:{" "}
-                    {new Date(presupuesto.fecha).toLocaleDateString("es-CO")}
+                    {formatFechaISO(presupuesto.fecha)}
                   </div>
                   {presupuesto.kilometraje && (
                     <div>
