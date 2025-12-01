@@ -13,6 +13,11 @@ type Presupuesto = {
   placa: string;
   total: number;
 };
+function formatFechaISO(fecha: string | null | undefined) {
+  if (!fecha) return "-";
+  const [year, month, day] = fecha.split("-"); // "2025-12-01"
+  return `${day}/${month}/${year}`;           // "01/12/2025"
+}
 
 export default function HistorialPage() {
   const [placa, setPlaca] = useState("");
@@ -144,7 +149,7 @@ export default function HistorialPage() {
                     Presupuesto #{p.numero}
                   </span>
                   <span className="text-xs text-gray-500">
-                    {new Date(p.fecha).toLocaleDateString("es-CO")}
+                    {formatFechaISO(p.fecha)}
                   </span>
                 </div>
                 <div className="text-sm font-medium text-gray-800">
@@ -216,7 +221,7 @@ export default function HistorialPage() {
                       {p.numero}
                     </td>
                     <td className="border border-gray-200 px-2 py-2">
-                      {new Date(p.fecha).toLocaleDateString("es-CO")}
+                      {formatFechaISO(p.fecha)}
                     </td>
                     <td className="border border-gray-200 px-2 py-2">
                       {p.propietario}
