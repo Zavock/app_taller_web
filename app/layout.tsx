@@ -1,5 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Inter } from "next/font/google";
+
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "600", "700"],
+});
 
 export const metadata: Metadata = {
   title: "MotorenHaus",
@@ -13,10 +19,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      {/* 👇 aquí quitamos bg-black / text-white y dejamos claro */}
-      <body className="min-h-screen bg-gray-100 text-gray-900">
+      <body className={`${inter.className} min-h-screen bg-gray-100 text-gray-900`}>
         {children}
       </body>
     </html>
   );
 }
+
