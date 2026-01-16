@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import { Car, FileText, Package, Wrench, Trash2 } from "lucide-react";
+import Logo from "@/components/Logo";
 
 type Item = {
   nombre: string;
@@ -37,14 +38,12 @@ export default function NuevoPresupuestoPage() {
   const [datosBloqueados, setDatosBloqueados] = useState(false);
 
   const subtotalRepuestos = repuestos.reduce(
-    (acc, it) =>
-      acc + (Number(it.cantidad) || 0) * (Number(it.precio) || 0),
+    (acc, it) => acc + (Number(it.cantidad) || 0) * (Number(it.precio) || 0),
     0
   );
 
   const subtotalServicios = servicios.reduce(
-    (acc, it) =>
-      acc + (Number(it.cantidad) || 0) * (Number(it.precio) || 0),
+    (acc, it) => acc + (Number(it.cantidad) || 0) * (Number(it.precio) || 0),
     0
   );
 
@@ -134,9 +133,7 @@ export default function NuevoPresupuestoPage() {
         setMensaje(`Se cargó información previa para la placa ${placaLimpia}.`);
       } else {
         setDatosBloqueados(false);
-        setMensaje(
-          `No se encontró información previa para la placa ${placaLimpia}.`
-        );
+        setMensaje(`No se encontró información previa para la placa ${placaLimpia}.`);
       }
     } catch (e) {
       console.error(e);
@@ -215,11 +212,10 @@ export default function NuevoPresupuestoPage() {
         const { error: itemsError } = await supabase
           .from("items_presupuesto")
           .insert(itemsInsert);
+
         if (itemsError) {
           console.error(itemsError);
-          setMensaje(
-            "Presupuesto creado, pero hubo error al guardar ítems."
-          );
+          setMensaje("Presupuesto creado, pero hubo error al guardar ítems.");
           return;
         }
       }
@@ -242,11 +238,11 @@ export default function NuevoPresupuestoPage() {
         {/* Header */}
         <header className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-col items-center md:flex-row md:items-center md:gap-3">
-            <img
-              src="/logo-taller.svg"
-              alt="Motoren Haus"
-              className="h-12 md:h-14 w-auto mb-1 md:mb-0"
-            />
+            {/* ✅ LOGO NUEVO */}
+            <div className="flex items-center justify-center md:justify-start">
+              <Logo className="text-2xl md:text-3xl" />
+            </div>
+
             <div className="text-center md:text-left text-xs md:text-sm text-gray-500">
               <div className="font-semibold text-gray-700 text-sm md:text-base">
                 Taller de Vehículos
@@ -255,9 +251,7 @@ export default function NuevoPresupuestoPage() {
           </div>
 
           <div className="text-center md:text-right text-xs md:text-sm text-gray-500">
-            <div className="font-semibold text-gray-600">
-              Nuevo presupuesto
-            </div>
+            <div className="font-semibold text-gray-600">Nuevo presupuesto</div>
             <div>Registra los datos del vehículo y servicios</div>
           </div>
         </header>
@@ -285,10 +279,7 @@ export default function NuevoPresupuestoPage() {
                 placeholder="ABC123"
                 value={datos.placa}
                 onChange={(e) =>
-                  setDatos({
-                    ...datos,
-                    placa: e.target.value.toUpperCase(),
-                  })
+                  setDatos({ ...datos, placa: e.target.value.toUpperCase() })
                 }
                 onBlur={() => buscarVehiculoPorPlaca()}
                 onKeyDown={(e) => {
@@ -300,42 +291,40 @@ export default function NuevoPresupuestoPage() {
                 disabled={datosBloqueados}
               />
             </div>
+
             <div>
               <label className={labelClass}>Propietario *</label>
               <input
                 className={inputClass}
                 placeholder="Nombre del propietario"
                 value={datos.propietario}
-                onChange={(e) =>
-                  setDatos({ ...datos, propietario: e.target.value })
-                }
+                onChange={(e) => setDatos({ ...datos, propietario: e.target.value })}
                 disabled={datosBloqueados}
               />
             </div>
+
             <div>
               <label className={labelClass}>Marca</label>
               <input
                 className={inputClass}
                 placeholder="Toyota, Chevrolet..."
                 value={datos.marca}
-                onChange={(e) =>
-                  setDatos({ ...datos, marca: e.target.value })
-                }
+                onChange={(e) => setDatos({ ...datos, marca: e.target.value })}
                 disabled={datosBloqueados}
               />
             </div>
+
             <div>
               <label className={labelClass}>Modelo</label>
               <input
                 className={inputClass}
                 placeholder="2010, 2012..."
                 value={datos.modelo}
-                onChange={(e) =>
-                  setDatos({ ...datos, modelo: e.target.value })
-                }
+                onChange={(e) => setDatos({ ...datos, modelo: e.target.value })}
                 disabled={datosBloqueados}
               />
             </div>
+
             <div>
               <label className={labelClass}>Kilometraje</label>
               <input
@@ -353,15 +342,14 @@ export default function NuevoPresupuestoPage() {
                 }}
               />
             </div>
+
             <div>
               <label className={labelClass}>VIN</label>
               <input
                 className={inputClass}
                 placeholder="Número de chasis"
                 value={datos.vin}
-                onChange={(e) =>
-                  setDatos({ ...datos, vin: e.target.value })
-                }
+                onChange={(e) => setDatos({ ...datos, vin: e.target.value })}
                 disabled={datosBloqueados}
               />
             </div>
@@ -384,11 +372,10 @@ export default function NuevoPresupuestoPage() {
                 className={`${inputClass} min-h-[80px] resize-y`}
                 placeholder="Describe el problema o el trabajo a realizar..."
                 value={datos.descripcion}
-                onChange={(e) =>
-                  setDatos({ ...datos, descripcion: e.target.value })
-                }
+                onChange={(e) => setDatos({ ...datos, descripcion: e.target.value })}
               />
             </div>
+
             <div>
               <label className={labelClass}>Observaciones</label>
               <textarea
@@ -439,6 +426,7 @@ export default function NuevoPresupuestoPage() {
                     }
                   />
                 </div>
+
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className={labelClass}>Cant.</label>
@@ -448,15 +436,11 @@ export default function NuevoPresupuestoPage() {
                       className={inputClass}
                       value={it.cantidad}
                       onChange={(e) =>
-                        actualizarItem(
-                          "repuesto",
-                          idx,
-                          "cantidad",
-                          e.target.value
-                        )
+                        actualizarItem("repuesto", idx, "cantidad", e.target.value)
                       }
                     />
                   </div>
+
                   <div>
                     <label className={labelClass}>Precio (COP)</label>
                     <input
@@ -470,6 +454,7 @@ export default function NuevoPresupuestoPage() {
                     />
                   </div>
                 </div>
+
                 <div className="flex justify-end">
                   <button
                     type="button"
@@ -513,15 +498,11 @@ export default function NuevoPresupuestoPage() {
                         value={it.nombre}
                         placeholder="Ej: Llanta, aceite..."
                         onChange={(e) =>
-                          actualizarItem(
-                            "repuesto",
-                            idx,
-                            "nombre",
-                            e.target.value
-                          )
+                          actualizarItem("repuesto", idx, "nombre", e.target.value)
                         }
                       />
                     </td>
+
                     <td className="border border-gray-200 px-2 py-1">
                       <input
                         type="number"
@@ -529,15 +510,11 @@ export default function NuevoPresupuestoPage() {
                         className={`${inputClass} h-7 text-xs text-center`}
                         value={it.cantidad}
                         onChange={(e) =>
-                          actualizarItem(
-                            "repuesto",
-                            idx,
-                            "cantidad",
-                            e.target.value
-                          )
+                          actualizarItem("repuesto", idx, "cantidad", e.target.value)
                         }
                       />
                     </td>
+
                     <td className="border border-gray-200 px-2 py-1">
                       <input
                         type="number"
@@ -545,15 +522,11 @@ export default function NuevoPresupuestoPage() {
                         className={`${inputClass} h-7 text-xs text-right`}
                         value={it.precio}
                         onChange={(e) =>
-                          actualizarItem(
-                            "repuesto",
-                            idx,
-                            "precio",
-                            e.target.value
-                          )
+                          actualizarItem("repuesto", idx, "precio", e.target.value)
                         }
                       />
                     </td>
+
                     <td className="border border-gray-200 px-2 py-1 text-center">
                       <button
                         type="button"
@@ -618,6 +591,7 @@ export default function NuevoPresupuestoPage() {
                     }
                   />
                 </div>
+
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className={labelClass}>Cant.</label>
@@ -627,15 +601,11 @@ export default function NuevoPresupuestoPage() {
                       className={inputClass}
                       value={it.cantidad}
                       onChange={(e) =>
-                        actualizarItem(
-                          "servicio",
-                          idx,
-                          "cantidad",
-                          e.target.value
-                        )
+                        actualizarItem("servicio", idx, "cantidad", e.target.value)
                       }
                     />
                   </div>
+
                   <div>
                     <label className={labelClass}>Precio (COP)</label>
                     <input
@@ -649,6 +619,7 @@ export default function NuevoPresupuestoPage() {
                     />
                   </div>
                 </div>
+
                 <div className="flex justify-end">
                   <button
                     type="button"
@@ -692,15 +663,11 @@ export default function NuevoPresupuestoPage() {
                         value={it.nombre}
                         placeholder="Ej: Cambio de aceite..."
                         onChange={(e) =>
-                          actualizarItem(
-                            "servicio",
-                            idx,
-                            "nombre",
-                            e.target.value
-                          )
+                          actualizarItem("servicio", idx, "nombre", e.target.value)
                         }
                       />
                     </td>
+
                     <td className="border border-gray-200 px-2 py-1">
                       <input
                         type="number"
@@ -708,15 +675,11 @@ export default function NuevoPresupuestoPage() {
                         className={`${inputClass} h-7 text-xs text-center`}
                         value={it.cantidad}
                         onChange={(e) =>
-                          actualizarItem(
-                            "servicio",
-                            idx,
-                            "cantidad",
-                            e.target.value
-                          )
+                          actualizarItem("servicio", idx, "cantidad", e.target.value)
                         }
                       />
                     </td>
+
                     <td className="border border-gray-200 px-2 py-1">
                       <input
                         type="number"
@@ -724,15 +687,11 @@ export default function NuevoPresupuestoPage() {
                         className={`${inputClass} h-7 text-xs text-right`}
                         value={it.precio}
                         onChange={(e) =>
-                          actualizarItem(
-                            "servicio",
-                            idx,
-                            "precio",
-                            e.target.value
-                          )
+                          actualizarItem("servicio", idx, "precio", e.target.value)
                         }
                       />
                     </td>
+
                     <td className="border border-gray-200 px-2 py-1 text-center">
                       <button
                         type="button"

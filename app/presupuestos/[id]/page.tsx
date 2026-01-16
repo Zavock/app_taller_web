@@ -5,6 +5,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import Logo from "@/components/Logo";
 
 type Presupuesto = {
   id: string;
@@ -35,7 +36,7 @@ type Item = {
 function formatFechaISO(fecha: string | null | undefined) {
   if (!fecha) return "-";
   const [year, month, day] = fecha.split("-"); // "2025-12-01"
-  return `${day}/${month}/${year}`;           // "01/12/2025"
+  return `${day}/${month}/${year}`; // "01/12/2025"
 }
 
 export default function PresupuestoDetallePage({
@@ -205,27 +206,20 @@ export default function PresupuestoDetallePage({
             {/* Encabezado con logo alineado con el texto de la derecha */}
             <header className="mb-4">
               <div className="flex items-center justify-between gap-4">
-                {/* Logo */}
+                {/* ✅ Logo nuevo */}
                 <div className="flex items-center">
-                  <img
-                    src="/logo-taller.svg"
-                    alt="Motoren Haus"
-                    className="h-20 w-auto"
-                  />
+                  <Logo className="text-2xl sm:text-3xl" />
                 </div>
 
                 {/* Bloque "Presupuesto / Fecha / Km" */}
                 <div className="text-right text-[10px] sm:text-xs text-[#6b7280]">
                   <div className="font-semibold text-[#111827]">Presupuesto</div>
                   <div>N° {presupuesto.numero}</div>
-                  <div>
-                    Fecha:{" "}
-                    {formatFechaISO(presupuesto.fecha)}
-                  </div>
+                  <div>Fecha: {formatFechaISO(presupuesto.fecha)}</div>
+
                   {presupuesto.kilometraje && (
                     <div>
-                      Kilometraje:{" "}
-                      {formatKilometraje(presupuesto.kilometraje)}
+                      Kilometraje: {formatKilometraje(presupuesto.kilometraje)}
                     </div>
                   )}
                 </div>
@@ -321,9 +315,9 @@ export default function PresupuestoDetallePage({
                           Subtotal repuestos
                         </td>
                         <td className="border border-[#e5e7eb] px-2 py-1 text-right">
-                          {Number(
-                            presupuesto.subtotal_repuestos
-                          ).toLocaleString("es-CO")}
+                          {Number(presupuesto.subtotal_repuestos).toLocaleString(
+                            "es-CO"
+                          )}
                         </td>
                       </tr>
                     </tfoot>
@@ -366,9 +360,7 @@ export default function PresupuestoDetallePage({
                             {s.cantidad}
                           </td>
                           <td className="border border-[#e5e7eb] px-2 py-1 text-right">
-                            {Number(
-                              s.precio_unitario
-                            ).toLocaleString("es-CO")}
+                            {Number(s.precio_unitario).toLocaleString("es-CO")}
                           </td>
                           <td className="border border-[#e5e7eb] px-2 py-1 text-right">
                             {Number(s.total).toLocaleString("es-CO")}
@@ -385,9 +377,9 @@ export default function PresupuestoDetallePage({
                           Subtotal servicios
                         </td>
                         <td className="border border-[#e5e7eb] px-2 py-1 text-right">
-                          {Number(
-                            presupuesto.subtotal_servicios
-                          ).toLocaleString("es-CO")}
+                          {Number(presupuesto.subtotal_servicios).toLocaleString(
+                            "es-CO"
+                          )}
                         </td>
                       </tr>
                     </tfoot>
@@ -410,24 +402,27 @@ export default function PresupuestoDetallePage({
                   </>
                 )}
               </div>
+
               <div className="text-right text-[11px] sm:text-xs space-y-1">
                 <div>
                   Subtotal repuestos:{" "}
-                  {Number(
-                    presupuesto.subtotal_repuestos
-                  ).toLocaleString("es-CO", {
-                    style: "currency",
-                    currency: "COP",
-                  })}
+                  {Number(presupuesto.subtotal_repuestos).toLocaleString(
+                    "es-CO",
+                    {
+                      style: "currency",
+                      currency: "COP",
+                    }
+                  )}
                 </div>
                 <div>
                   Subtotal servicios:{" "}
-                  {Number(
-                    presupuesto.subtotal_servicios
-                  ).toLocaleString("es-CO", {
-                    style: "currency",
-                    currency: "COP",
-                  })}
+                  {Number(presupuesto.subtotal_servicios).toLocaleString(
+                    "es-CO",
+                    {
+                      style: "currency",
+                      currency: "COP",
+                    }
+                  )}
                 </div>
                 <div className="font-bold text-sm sm:text-base mt-1">
                   Total:{" "}

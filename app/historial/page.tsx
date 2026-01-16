@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
+import Logo from "@/components/Logo";
 
 type Presupuesto = {
   id: string;
@@ -13,10 +14,11 @@ type Presupuesto = {
   placa: string;
   total: number;
 };
+
 function formatFechaISO(fecha: string | null | undefined) {
   if (!fecha) return "-";
   const [year, month, day] = fecha.split("-"); // "2025-12-01"
-  return `${day}/${month}/${year}`;           // "01/12/2025"
+  return `${day}/${month}/${year}`; // "01/12/2025"
 }
 
 export default function HistorialPage() {
@@ -40,9 +42,7 @@ export default function HistorialPage() {
 
     let query = supabase
       .from("presupuestos")
-      .select("id, numero, fecha, propietario, placa, total", {
-        count: "exact",
-      })
+      .select("id, numero, fecha, propietario, placa, total", { count: "exact" })
       .order("fecha", { ascending: false })
       .range(desde, hasta);
 
@@ -78,11 +78,9 @@ export default function HistorialPage() {
         {/* Header */}
         <header className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-col items-center md:flex-row md:items-center md:gap-3">
-            <img
-              src="/logo-taller.svg"
-              alt="Motoren Haus"
-              className="h-20 mb-1 md:mb-0"
-            />
+            {/* ✅ Logo nuevo */}
+            <Logo className="text-2xl md:text-3xl" />
+
             <div className="text-center md:text-left">
               <h1 className="text-xl md:text-2xl font-bold text-brand">
                 Historial de presupuestos
@@ -129,9 +127,7 @@ export default function HistorialPage() {
             </button>
           </div>
 
-          {errorMsg && (
-            <p className="mt-2 text-xs text-red-600">{errorMsg}</p>
-          )}
+          {errorMsg && <p className="mt-2 text-xs text-red-600">{errorMsg}</p>}
         </section>
 
         {/* Resultados */}
@@ -152,9 +148,11 @@ export default function HistorialPage() {
                     {formatFechaISO(p.fecha)}
                   </span>
                 </div>
+
                 <div className="text-sm font-medium text-gray-800">
                   {p.propietario}
                 </div>
+
                 <div className="flex justify-between text-xs text-gray-600 mt-1">
                   <span>Placa: {p.placa}</span>
                   <span>
@@ -164,6 +162,7 @@ export default function HistorialPage() {
                     })}
                   </span>
                 </div>
+
                 <div className="mt-3 flex justify-end">
                   <button
                     className="inline-flex items-center justify-center rounded-lg border border-brand px-3 py-1 text-xs font-semibold text-brand hover:bg-brand/5"
@@ -210,6 +209,7 @@ export default function HistorialPage() {
                   </th>
                 </tr>
               </thead>
+
               <tbody>
                 {resultados.map((p) => (
                   <tr

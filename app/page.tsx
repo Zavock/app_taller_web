@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { FileText, Clock } from "lucide-react";
+import Logo from "@/components/Logo";
 
 export default function HomePage() {
   return (
@@ -9,11 +10,8 @@ export default function HomePage() {
       <div className="w-full max-w-xl bg-white rounded-2xl shadow-md border border-gray-100 p-5 md:p-8">
         {/* Logo + título */}
         <section className="flex flex-col items-center gap-3 mb-6">
-          <img
-            src="/logo-taller.svg"
-            alt="Motoren Haus"
-            className="h-30 md:h-30 w-auto"
-          />
+          <Logo className="text-3xl md:text-4xl" />
+
           <div className="text-center">
             <h1 className="text-2xl md:text-3xl font-bold text-brand">
               Presupuestos del taller
@@ -65,7 +63,7 @@ export default function HomePage() {
 
         {/* Footer */}
         <footer className="mt-6 text-center text-[11px] text-gray-400">
-          Versión 1.0 · 2025
+          Versión 2.0 · 2026
         </footer>
       </div>
     </main>
