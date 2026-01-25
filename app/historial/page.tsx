@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import Logo from "@/components/Logo";
+import ConfirmModal from "@/components/ConfirmModal";
+import { FileText, Pencil, Trash2 } from "lucide-react";
 
 type Presupuesto = {
   id: string;
@@ -17,8 +19,8 @@ type Presupuesto = {
 
 function formatFechaISO(fecha: string | null | undefined) {
   if (!fecha) return "-";
-  const [year, month, day] = fecha.split("-"); // "2025-12-01"
-  return `${day}/${month}/${year}`; // "01/12/2025"
+  const [year, month, day] = fecha.split("-");
+  return `${day}/${month}/${year}`;
 }
 
 export default function HistorialPage() {
@@ -32,6 +34,14 @@ export default function HistorialPage() {
   const PAGE_SIZE = 20;
   const [page, setPage] = useState(0);
   const [hayMas, setHayMas] = useState(false);
+
+  // ✅ Modal eliminar
+  const [modalOpen, setModalOpen] = useState(false);
+  const [eliminando, setEliminando] = useState(false);
+  const [presupuestoAEliminar, setPresupuestoAEliminar] = useState<{
+    id: string;
+    numero: number;
+  } | null>(null);
 
   async function buscar(pagina = 0) {
     setCargando(true);
@@ -65,6 +75,42 @@ export default function HistorialPage() {
     }
 
     setCargando(false);
+  }
+
+  async function eliminarPresupuesto(id: string) {
+    try {
+      setEliminando(true);
+      setErrorMsg(null);
+
+      // ✅ 1) borrar items primero
+      const { error: errItems } = await supabase
+        .from("items_presupuesto")
+        .delete()
+        .eq("presupuesto_id", id);
+
+      if (errItems) {
+        console.error(errItems);
+        setErrorMsg("Error eliminando los ítems del presupuesto.");
+        return;
+      }
+
+      // ✅ 2) borrar presupuesto
+      const { error: errP } = await supabase
+        .from("presupuestos")
+        .delete()
+        .eq("id", id);
+
+      if (errP) {
+        console.error(errP);
+        setErrorMsg("Error eliminando el presupuesto.");
+        return;
+      }
+
+      // ✅ refrescar página actual
+      await buscar(page);
+    } finally {
+      setEliminando(false);
+    }
   }
 
   useEffect(() => {
@@ -113,13 +159,14 @@ export default function HistorialPage() {
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();
-                    buscar(0); // siempre reinicia a la primera página
+                    buscar(0);
                   }
                 }}
               />
             </div>
+
             <button
-              onClick={() => buscar(0)} // reinicia a página 0 al buscar
+              onClick={() => buscar(0)}
               className="w-full md:w-auto inline-flex items-center justify-center rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand/90 disabled:opacity-60"
               disabled={cargando}
             >
@@ -163,15 +210,38 @@ export default function HistorialPage() {
                   </span>
                 </div>
 
-                <div className="mt-3 flex justify-end">
+                {/* ✅ Acciones móvil */}
+                <div
+                  className="mt-3 flex items-center justify-end gap-2"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <button
                     className="inline-flex items-center justify-center rounded-lg border border-brand px-3 py-1 text-xs font-semibold text-brand hover:bg-brand/5"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      router.push(`/presupuestos/${p.id}`);
+                    onClick={() => router.push(`/presupuestos/${p.id}`)}
+                    title="Ver / PDF"
+                  >
+                    <FileText className="h-4 w-4 mr-1" />
+                    Ver
+                  </button>
+
+                  <button
+                    className="inline-flex items-center justify-center rounded-lg border border-gray-300 px-3 py-1 text-xs font-semibold text-gray-700 hover:bg-gray-50"
+                    onClick={() => router.push(`/presupuestos/${p.id}/editar`)}
+                    title="Editar"
+                  >
+                    <Pencil className="h-4 w-4 mr-1" />
+                    Editar
+                  </button>
+
+                  <button
+                    className="inline-flex items-center justify-center rounded-lg border border-red-200 px-3 py-1 text-xs font-semibold text-red-600 hover:bg-red-50"
+                    title="Eliminar"
+                    onClick={() => {
+                      setPresupuestoAEliminar({ id: p.id, numero: p.numero });
+                      setModalOpen(true);
                     }}
                   >
-                    Ver / PDF
+                    <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
               </div>
@@ -204,7 +274,7 @@ export default function HistorialPage() {
                   <th className="border border-gray-200 px-2 py-2 text-right">
                     Total (COP)
                   </th>
-                  <th className="border border-gray-200 px-2 py-2 text-center w-32">
+                  <th className="border border-gray-200 px-2 py-2 text-center w-44">
                     Acciones
                   </th>
                 </tr>
@@ -235,16 +305,43 @@ export default function HistorialPage() {
                         currency: "COP",
                       })}
                     </td>
+
+                    {/* Acciones escritorio */}
                     <td
                       className="border border-gray-200 px-2 py-2 text-center"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <Link
-                        href={`/presupuestos/${p.id}`}
-                        className="inline-flex items-center justify-center rounded-lg border border-brand px-3 py-1 text-xs font-semibold text-brand hover:bg-brand/5"
-                      >
-                        Ver / PDF
-                      </Link>
+                      <div className="flex justify-center items-center gap-2">
+                        <Link
+                          href={`/presupuestos/${p.id}`}
+                          className="inline-flex items-center justify-center rounded-lg border border-brand px-3 py-1 text-xs font-semibold text-brand hover:bg-brand/5"
+                          title="Ver / PDF"
+                        >
+                          <FileText className="h-4 w-4" />
+                        </Link>
+
+                        <Link
+                          href={`/presupuestos/${p.id}/editar`}
+                          className="inline-flex items-center justify-center rounded-lg border border-gray-300 px-3 py-1 text-xs font-semibold text-gray-700 hover:bg-gray-50"
+                          title="Editar"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Link>
+
+                        <button
+                          className="inline-flex items-center justify-center rounded-lg border border-red-200 px-3 py-1 text-xs font-semibold text-red-600 hover:bg-red-50"
+                          title="Eliminar"
+                          onClick={() => {
+                            setPresupuestoAEliminar({
+                              id: p.id,
+                              numero: p.numero,
+                            });
+                            setModalOpen(true);
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -287,6 +384,28 @@ export default function HistorialPage() {
           </div>
         </section>
       </div>
+
+      {/* Modal eliminar */}
+      <ConfirmModal
+        open={modalOpen}
+        title={`Eliminar presupuesto #${presupuestoAEliminar?.numero ?? ""}`}
+        description="Esta acción eliminará también los repuestos y servicios del presupuesto. No se puede deshacer."
+        confirmText="Sí, eliminar"
+        cancelText="Cancelar"
+        loading={eliminando}
+        danger
+        onClose={() => {
+          if (eliminando) return;
+          setModalOpen(false);
+          setPresupuestoAEliminar(null);
+        }}
+        onConfirm={async () => {
+          if (!presupuestoAEliminar) return;
+          await eliminarPresupuesto(presupuestoAEliminar.id);
+          setModalOpen(false);
+          setPresupuestoAEliminar(null);
+        }}
+      />
     </main>
   );
 }

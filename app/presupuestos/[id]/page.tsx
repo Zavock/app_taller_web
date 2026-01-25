@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabaseClient";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import Logo from "@/components/Logo";
+import { Pencil } from "lucide-react";
 
 type Presupuesto = {
   id: string;
@@ -44,7 +45,6 @@ export default function PresupuestoDetallePage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  // Next 15: params es Promise
   const { id } = React.use(params);
 
   const [presupuesto, setPresupuesto] = React.useState<Presupuesto | null>(
@@ -170,9 +170,10 @@ export default function PresupuestoDetallePage({
   return (
     <main className="min-h-screen bg-gray-100 flex justify-center px-3 py-6 md:py-8">
       <div className="w-full max-w-4xl space-y-4">
-        {/* Header fuera del PDF */}
+        {/* ✅ Header superior */}
         <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
+          <div className="flex flex-col items-center sm:flex-row sm:items-center sm:gap-3">
+            <Logo className="text-2xl md:text-3xl" />
             <h1 className="text-lg md:text-xl font-bold text-gray-900">
               Presupuesto{" "}
               <span className="text-brand">#{presupuesto.numero}</span>
@@ -180,6 +181,16 @@ export default function PresupuestoDetallePage({
           </div>
 
           <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            {/* ✅ Editar */}
+            <Link
+              href={`/presupuestos/${presupuesto.id}/editar`}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl border border-gray-300 bg-white text-sm font-semibold text-gray-700 hover:bg-gray-50"
+            >
+              <Pencil className="h-4 w-4" />
+              Editar
+            </Link>
+
+            {/* PDF */}
             <button
               onClick={handleGenerarPdf}
               disabled={generandoPdf}
@@ -188,6 +199,7 @@ export default function PresupuestoDetallePage({
               {generandoPdf ? "Generando PDF..." : "Descargar PDF"}
             </button>
 
+            {/* Volver */}
             <Link
               href="/historial"
               className="w-full sm:w-auto px-4 py-2 rounded-xl border border-gray-300 bg-white text-sm font-semibold text-gray-700 hover:bg-gray-50 text-center"
@@ -203,7 +215,7 @@ export default function PresupuestoDetallePage({
             ref={contentRef}
             className="mx-auto w-full max-w-[794px] bg-white text-xs sm:text-sm text-[#111827]"
           >
-            {/* Encabezado con logo alineado con el texto de la derecha */}
+            {/* Encabezado PDF */}
             <header className="mb-4">
               <div className="flex items-center justify-between gap-4">
                 {/* ✅ Logo nuevo */}
@@ -408,20 +420,14 @@ export default function PresupuestoDetallePage({
                   Subtotal repuestos:{" "}
                   {Number(presupuesto.subtotal_repuestos).toLocaleString(
                     "es-CO",
-                    {
-                      style: "currency",
-                      currency: "COP",
-                    }
+                    { style: "currency", currency: "COP" }
                   )}
                 </div>
                 <div>
                   Subtotal servicios:{" "}
                   {Number(presupuesto.subtotal_servicios).toLocaleString(
                     "es-CO",
-                    {
-                      style: "currency",
-                      currency: "COP",
-                    }
+                    { style: "currency", currency: "COP" }
                   )}
                 </div>
                 <div className="font-bold text-sm sm:text-base mt-1">
