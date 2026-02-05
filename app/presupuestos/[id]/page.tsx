@@ -103,48 +103,65 @@ export default function PresupuestoDetallePage({
     });
   }
 
-  async function handleGenerarPdf() {
-    if (!contentRef.current || !presupuesto) return;
+async function handleGenerarPdf() {
+  if (!contentRef.current || !presupuesto) return;
 
-    try {
-      setGenerandoPdf(true);
+  try {
+    setGenerandoPdf(true);
 
-      const original = contentRef.current;
+    const original = contentRef.current;
 
-      // 🔁 Clonamos el contenido para el PDF
-      const cloned = original.cloneNode(true) as HTMLElement;
-      cloned.style.width = "794px"; // ancho fijo A4
-      cloned.style.padding = "24px";
-      cloned.style.background = "#ffffff";
-      cloned.style.position = "fixed";
-      cloned.style.left = "-10000px"; // lo escondemos fuera de pantalla
-      cloned.style.top = "0";
-      cloned.style.zIndex = "-1";
+    // 🔁 Clonamos el contenido para el PDF
+    const cloned = original.cloneNode(true) as HTMLElement;
+    cloned.style.width = "794px"; // ancho fijo A4 (aprox. 210mm a 96dpi)
+    cloned.style.padding = "24px";
+    cloned.style.background = "#ffffff";
+    cloned.style.position = "fixed";
+    cloned.style.left = "-10000px";
+    cloned.style.top = "0";
+    cloned.style.zIndex = "-1";
 
-      document.body.appendChild(cloned);
+    document.body.appendChild(cloned);
 
-      // Capturamos el CLON, no el original
-      const canvas = await html2canvas(cloned, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: "#ffffff",
-      });
+    const canvas = await html2canvas(cloned, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+    });
 
-      document.body.removeChild(cloned);
+    document.body.removeChild(cloned);
 
-      const imgData = canvas.toDataURL("image/png");
+    const imgData = canvas.toDataURL("image/png");
 
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const imgWidth = pageWidth;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    // ✅ PDF multipágina
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
 
-      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-      pdf.save(`presupuesto-${presupuesto.numero}.pdf`);
-    } finally {
-      setGenerandoPdf(false);
+    // Imagen a ancho completo
+    const imgWidth = pageWidth;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    // 1ra página
+    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+
+    // Páginas adicionales (desplazando la misma imagen hacia arriba)
+    while (heightLeft > 0) {
+      pdf.addPage();
+      position -= pageHeight;
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
     }
+
+    pdf.save(`presupuesto-${presupuesto.numero}.pdf`);
+  } finally {
+    setGenerandoPdf(false);
   }
+}
 
   if (cargando) {
     return (
