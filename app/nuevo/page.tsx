@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import { Car, FileText, Package, Wrench, Trash2 } from "lucide-react";
@@ -11,6 +11,8 @@ type Item = {
   cantidad: number | "";
   precio: number | "";
 };
+
+const DRAFT_KEY = "taller-nuevo-presupuesto-borrador";
 
 const initialDatos = {
   placa: "",
@@ -36,6 +38,65 @@ export default function NuevoPresupuestoPage() {
   const [guardando, setGuardando] = useState(false);
   const [mensaje, setMensaje] = useState<string | null>(null);
   const [datosBloqueados, setDatosBloqueados] = useState(false);
+
+  // Cargar borrador guardado (por ejemplo, si el usuario recibió una llamada
+  // y el navegador recargó o se cerró la pestaña).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    try {
+      const raw = window.localStorage.getItem(DRAFT_KEY);
+      if (!raw) return;
+
+      const parsed = JSON.parse(raw) as {
+        datos: typeof initialDatos;
+        repuestos: Item[];
+        servicios: Item[];
+      };
+
+      if (parsed.datos) {
+        setDatos(parsed.datos);
+      }
+
+      if (parsed.repuestos && parsed.repuestos.length > 0) {
+        setRepuestos(parsed.repuestos);
+      }
+
+      if (parsed.servicios && parsed.servicios.length > 0) {
+        setServicios(parsed.servicios);
+      }
+    } catch (e) {
+      console.error("Error cargando borrador de presupuesto", e);
+    }
+  }, []);
+
+  // Guardar borrador automáticamente cuando cambian los campos.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const isDatosVacios = Object.values(datos).every((v) => v === "");
+    const hayRepuestos = repuestos.some(
+      (it) => it.nombre || it.cantidad || it.precio
+    );
+    const hayServicios = servicios.some(
+      (it) => it.nombre || it.cantidad || it.precio
+    );
+
+    // Si todo está vacío, limpiamos cualquier borrador previo.
+    if (isDatosVacios && !hayRepuestos && !hayServicios) {
+      window.localStorage.removeItem(DRAFT_KEY);
+      return;
+    }
+
+    try {
+      window.localStorage.setItem(
+        DRAFT_KEY,
+        JSON.stringify({ datos, repuestos, servicios })
+      );
+    } catch (e) {
+      console.error("Error guardando borrador de presupuesto", e);
+    }
+  }, [datos, repuestos, servicios]);
 
   const subtotalRepuestos = repuestos.reduce(
     (acc, it) => acc + (Number(it.cantidad) || 0) * (Number(it.precio) || 0),
@@ -227,6 +288,10 @@ export default function NuevoPresupuestoPage() {
       setRepuestos([createEmptyItem()]);
       setServicios([createEmptyItem()]);
       setDatosBloqueados(false);
+
+      if (typeof window !== "undefined") {
+        window.localStorage.removeItem(DRAFT_KEY);
+      }
     } finally {
       setGuardando(false);
     }
